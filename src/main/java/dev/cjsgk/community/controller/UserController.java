@@ -1,37 +1,28 @@
 package dev.cjsgk.community.controller;
 
 import dev.cjsgk.community.controller.dto.UserDto;
-import dev.cjsgk.community.auth.CommunityUserDetailsService;
 import dev.cjsgk.community.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 
-// modified
-@Controller
+@RestController
 @RequestMapping("user")
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
-    private final CommunityUserDetailsService userManager;
 
-    public UserController(
-            UserService userService,
-            CommunityUserDetailsService userDetailsService
-    ) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.userManager = userDetailsService;
     }
 
-    // removed
-//    @PostMapping
-//    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto){
-//        return ResponseEntity.ok(this.userService.createUser(userDto));
-//    }
+    @PostMapping
+    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto){
+        return ResponseEntity.ok(this.userService.createUser(userDto));
+    }
 
     @GetMapping("{id}")
     public ResponseEntity<UserDto> readUser(@PathVariable("id") Long id) {
@@ -53,31 +44,5 @@ public class UserController {
     public ResponseEntity<?> DeleteUser(@PathVariable("id") Long id){
         this.userService.deleteUser(id);
         return ResponseEntity.noContent().build();
-    }
-
-    // new
-    @GetMapping("login")
-    public String login(){
-        return "login-form";
-    }
-
-    @GetMapping("signup")
-    public String signUp() {
-        return "signup-form";
-    }
-
-    @PostMapping("signup")
-    public String signUpPost(
-            @RequestParam("username") String username,
-            @RequestParam("password") String password,
-            @RequestParam("password_check") String passwordCheck,
-            @RequestParam(value = "is_shop_owner", defaultValue = "false") Boolean isShopOwner
-    ) {
-        if (!password.equals(passwordCheck)) {
-            return "redirect:/user/signup?error=password_check";
-        }
-        userManager.createUser(username, password, isShopOwner);
-
-        return "redirect:/user/login";
     }
 }

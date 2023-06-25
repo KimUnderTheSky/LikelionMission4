@@ -29,6 +29,21 @@ public class UserService {
         this.areaRepository = areaRepository;
     }
 
+    public UserDto createUser(UserDto userDto){
+        Optional<AreaEntity> areaEntityOptional = this.areaRepository.findById(userDto.getAreaId());
+        if (areaEntityOptional.isEmpty())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        AreaEntity residence = areaEntityOptional.get();
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setUsername(userDto.getUsername());
+        userEntity.setPassword(userDto.getPassword());
+        userEntity.setShopOwner(userDto.getIsShopOwner());
+        userEntity.setResidence(residence);
+        userEntity = this.userRepository.save(userEntity);
+        return new UserDto(userEntity);
+    }
+
     public UserDto readUser(Long id) {
         Optional<UserEntity> userEntityOptional = this.userRepository.findById(id);
         if (userEntityOptional.isEmpty())
